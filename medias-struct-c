@@ -1,0 +1,47 @@
+#include <stdio.h>
+#define TAM 30
+
+struct Aluno{
+    double nota1, nota2, media;
+};
+struct Aluno turma[TAM];
+
+void digitarNotas(struct Aluno *al);
+void mediaAlunos(struct Aluno *al);
+void imprimirAcimaMedia(struct Aluno turma[], double mediaTurma);
+
+int main() {
+    double mediaTurma = 0;
+    int i;
+    for(i = 0; i < TAM; i+=1) {
+        printf("Aluno %d\n", i + 1);
+        digitarNotas(&turma[i]);
+        mediaAlunos(&turma[i]);
+        mediaTurma += turma[i].media;
+    }
+    mediaTurma = mediaTurma / TAM;
+    printf("\nMedia da turma: %.2lf\n", mediaTurma);
+    printf("\nAlunos acima da media da turma:\n");
+    imprimirAcimaMedia(turma, mediaTurma);
+    return 0;
+}
+
+void digitarNotas(struct Aluno *al){
+    printf("Digite a primeira nota: ");
+    scanf("%lf", &al->nota1);
+
+    printf("Digite a segunda nota: ");
+    scanf("%lf", &al->nota2);   
+}
+void mediaAlunos(struct Aluno *al){
+    al->media = (al->nota1*2 + al->nota2*3) / TAM;
+}
+void imprimirAcimaMedia(struct Aluno turma[], double mediaTurma){
+    int i;
+    for(i = 0; i < TAM; i+=1) {
+        if(turma[i].media > mediaTurma) {
+        printf("Aluno %d -> Media: %.2lf\n", i + 1, turma[i].media);
+        }
+    }
+
+}
