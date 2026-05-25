@@ -1,0 +1,193 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX 100
+
+struct Conta {
+    int numero;
+    char nome[50];
+    char cpf[20];
+    char telefone[20];
+    float saldo;
+};
+
+int buscar(struct Conta cad[], int tam, int numeroConta);
+void cadastrar(struct Conta cad[], int *tam, int numeroConta);
+void consultarSaldo(struct Conta cad[], int tam, int numeroConta);
+void deposito(struct Conta cad[], int tam, int numeroConta);
+void saque(struct Conta cad[], int tam, int numeroConta);
+void listar(struct Conta cad[], int tam);
+
+int main() {
+
+    struct Conta contas[MAX];
+    int tam = 0;
+
+    int opcao, num;
+
+    do {
+        printf("\n1 - Cadastrar\n");
+        printf("2 - Consultar saldo\n");
+        printf("3 - Deposito\n");
+        printf("4 - Saque\n");
+        printf("5 - Listar contas\n");
+        printf("0 - Sair\n");
+        printf("Opcao: ");
+        scanf("%d", &opcao);
+
+        if(opcao >= 1 && opcao <= 4) {
+            printf("Numero da conta: ");
+            scanf("%d", &num);
+        }
+
+        switch(opcao) {
+
+            case 1:
+                cadastrar(contas, &tam, num);
+                break;
+
+            case 2:
+                consultarSaldo(contas, tam, num);
+                break;
+
+            case 3:
+                deposito(contas, tam, num);
+                break;
+
+            case 4:
+                saque(contas, tam, num);
+                break;
+
+            case 5:
+                listar(contas, tam);
+                break;
+        }
+
+    } while(opcao != 0);
+
+    return 0;
+}
+
+// a)
+int buscar(struct Conta cad[], int tam, int numeroConta) {
+
+    int i;
+
+    if(tam == 0)
+        return -1;
+
+    for(i = 0; i < tam; i++) {
+        if(cad[i].numero == numeroConta)
+            return i;
+    }
+
+    return -2;
+}
+
+// b)
+void cadastrar(struct Conta cad[], int *tam, int numeroConta) {
+
+    if(*tam >= MAX) {
+        printf("Cadastro cheio!\n");
+        return;
+    }
+
+    if(buscar(cad, *tam, numeroConta) >= 0) {
+        printf("Conta ja cadastrada!\n");
+        return;
+    }
+
+    struct Conta nova;
+
+    nova.numero = numeroConta;
+
+    printf("Nome: ");
+    scanf("%s", nova.nome);
+
+    printf("CPF: ");
+    scanf("%s", nova.cpf);
+
+    printf("Telefone: ");
+    scanf("%s", nova.telefone);
+
+    printf("Saldo inicial: ");
+    scanf("%f", &nova.saldo);
+
+    cad[*tam] = nova;
+    (*tam)++;
+
+    printf("Conta cadastrada!\n");
+}
+
+// c)
+void consultarSaldo(struct Conta cad[], int tam, int numeroConta) {
+
+    int pos = buscar(cad, tam, numeroConta);
+
+    if(pos == -1) {
+        printf("Cadastro vazio!\n");
+    }
+    else if(pos == -2) {
+        printf("Conta nao cadastrada!\n");
+    }
+    else {
+        printf("Saldo: %.2f\n", cad[pos].saldo);
+    }
+}
+
+// d)
+void deposito(struct Conta cad[], int tam, int numeroConta) {
+
+    int pos = buscar(cad, tam, numeroConta);
+
+    if(pos < 0) {
+        printf("Conta nao cadastrada!\n");
+        return;
+    }
+
+    float valor;
+
+    printf("Valor do deposito: ");
+    scanf("%f", &valor);
+
+    cad[pos].saldo += valor;
+
+    printf("Deposito realizado!\n");
+}
+
+// e)
+void saque(struct Conta cad[], int tam, int numeroConta) {
+
+    int pos = buscar(cad, tam, numeroConta);
+
+    if(pos < 0) {
+        printf("Conta nao cadastrada!\n");
+        return;
+    }
+
+    float valor;
+
+    printf("Valor do saque: ");
+    scanf("%f", &valor);
+
+    if(cad[pos].saldo >= valor) {
+        cad[pos].saldo -= valor;
+        printf("Saque realizado!\n");
+    }
+    else {
+        printf("Saldo insuficiente!\n");
+    }
+}
+
+// f)
+void listar(struct Conta cad[], int tam) {
+
+    int i;
+
+    printf("\n--- CONTAS CADASTRADAS ---\n");
+
+    for(i = 0; i < tam; i++) {
+        printf("\nConta: %d\n", cad[i].numero);
+        printf("Nome: %s\n", cad[i].nome);
+        printf("Telefone: %s\n", cad[i].telefone);
+    }
+}
