@@ -1,0 +1,123 @@
+#include <stdio.h>
+
+#define TAM 26
+
+struct Estado {
+    char nome[50];
+    int veiculos;
+    int acidentes;
+};
+
+void cadastrarEstados(struct Estado estados[]);
+void maiorMenorAcidentes(struct Estado estados[], int *maior, int *menor);
+float percentualAcidentes(struct Estado estados[], int posicao);
+float mediaAcidentes(struct Estado estados[]);
+void estadosAcimaMedia(struct Estado estados[], float media);
+
+int main() {
+
+    struct Estado estados[TAM];
+    int maior, menor;
+    float media;
+    int i;
+
+    cadastrarEstados(estados);
+
+    maiorMenorAcidentes(estados, &maior, &menor);
+
+    printf("\nMaior numero de acidentes:\n");
+    printf("Estado: %s\n", estados[maior].nome);
+    printf("Acidentes: %d\n", estados[maior].acidentes);
+
+    printf("\nMenor numero de acidentes:\n");
+    printf("Estado: %s\n", estados[menor].nome);
+    printf("Acidentes: %d\n", estados[menor].acidentes);
+
+    printf("\nPercentual de veiculos envolvidos em acidentes:\n");
+
+    for(i = 0; i < TAM; i++) {
+        printf("%s: %.2f%%\n",
+               estados[i].nome,
+               percentualAcidentes(estados, i));
+    }
+
+    media = mediaAcidentes(estados);
+
+    printf("\nMedia de acidentes no pais: %.2f\n", media);
+
+    estadosAcimaMedia(estados, media);
+
+    return 0;
+}
+
+// a)
+void cadastrarEstados(struct Estado estados[]) {
+    int i;
+
+    for(i = 0; i < TAM; i++) {
+
+        printf("\nEstado %d:\n", i + 1);
+
+        printf("Nome do estado: ");
+        scanf("%s", estados[i].nome);
+
+        printf("Numero de veiculos: ");
+        scanf("%d", &estados[i].veiculos);
+
+        printf("Numero de acidentes: ");
+        scanf("%d", &estados[i].acidentes);
+    }
+}
+
+// b)
+void maiorMenorAcidentes(struct Estado estados[], int *maior, int *menor) {
+
+    int i;
+
+    *maior = 0;
+    *menor = 0;
+
+    for(i = 1; i < TAM; i++) {
+
+        if(estados[i].acidentes > estados[*maior].acidentes)
+            *maior = i;
+
+        if(estados[i].acidentes < estados[*menor].acidentes)
+            *menor = i;
+    }
+}
+
+// c)
+float percentualAcidentes(struct Estado estados[], int posicao) {
+
+    if(estados[posicao].veiculos == 0)
+        return 0;
+
+    return ((float) estados[posicao].acidentes /
+            estados[posicao].veiculos) * 100;
+}
+
+// d)
+float mediaAcidentes(struct Estado estados[]) {
+
+    int i, soma = 0;
+
+    for(i = 0; i < TAM; i++)
+        soma += estados[i].acidentes;
+
+    return (float) soma / TAM;
+}
+
+// e)
+void estadosAcimaMedia(struct Estado estados[], float media) {
+
+    int i;
+
+    printf("\nEstados acima da media de acidentes:\n");
+
+    for(i = 0; i < TAM; i++) {
+
+        if(estados[i].acidentes > media)
+            printf("%s\n", estados[i].nome);
+    }
+}
