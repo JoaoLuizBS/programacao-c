@@ -1,0 +1,305 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_PRODUTOS_VENDA 10
+
+struct Produto {
+    int id;
+    char descricao[50];
+    float preco;
+    int estoque;
+};
+
+struct Venda {
+    int idVenda;
+    int qtdProdutos;
+    int idsProdutos[MAX_PRODUTOS_VENDA];
+    float valorTotal;
+};
+
+void cadastrarProduto();
+void listarProdutos();
+void buscarProduto(int id);
+void atualizarProduto(int id);
+void removerProduto(int id);
+void cadastrarVenda();
+void listarVendas();
+void buscarVenda(int idVenda);
+
+int main() {
+
+    int op;
+
+    do {
+
+        printf("\n1 - Cadastrar Produto");
+        printf("\n2 - Listar Produtos");
+        printf("\n3 - Buscar Produto");
+        printf("\n4 - Atualizar Produto");
+        printf("\n5 - Remover Produto");
+        printf("\n6 - Cadastrar Venda");
+        printf("\n7 - Listar Vendas");
+        printf("\n8 - Buscar Venda");
+        printf("\n0 - Sair");
+
+        printf("\nOpcao: ");
+        scanf("%d", &op);
+
+        switch(op) {
+
+            case 1:
+                cadastrarProduto();
+                break;
+
+            case 2:
+                listarProdutos();
+                break;
+
+            case 3: {
+                int id;
+                printf("ID do produto: ");
+                scanf("%d", &id);
+                buscarProduto(id);
+                break;
+            }
+
+            case 4: {
+                int id;
+                printf("ID do produto: ");
+                scanf("%d", &id);
+                atualizarProduto(id);
+                break;
+            }
+
+            case 5: {
+                int id;
+                printf("ID do produto: ");
+                scanf("%d", &id);
+                removerProduto(id);
+                break;
+            }
+
+            case 6:
+                cadastrarVenda();
+                break;
+
+            case 7:
+                listarVendas();
+                break;
+
+            case 8: {
+                int idVenda;
+                printf("ID da venda: ");
+                scanf("%d", &idVenda);
+                buscarVenda(idVenda);
+                break;
+            }
+        }
+
+    } while (op != 0);
+
+    return 0;
+}
+
+void cadastrarProduto() {
+
+    FILE *arq = fopen("produtos.dat", "ab");
+
+    struct Produto p;
+
+    printf("ID: ");
+    scanf("%d", &p.id);
+
+    printf("Descricao: ");
+    scanf(" %s", p.descricao);
+
+    printf("Preco: ");
+    scanf("%f", &p.preco);
+
+    printf("Estoque: ");
+    scanf("%d", &p.estoque);
+
+    fwrite(&p, sizeof(struct Produto), 1, arq);
+
+    fclose(arq);
+}
+
+void listarProdutos() {
+
+    FILE *arq = fopen("produtos.dat", "rb");
+
+    struct Produto p;
+
+    while (fread(&p, sizeof(struct Produto), 1, arq)) {
+
+        printf("\nID: %d", p.id);
+        printf("\nDescricao: %s", p.descricao);
+        printf("\nPreco: %.2f", p.preco);
+        printf("\nEstoque: %d\n", p.estoque);
+    }
+
+    fclose(arq);
+}
+
+void buscarProduto(int id) {
+
+    FILE *arq = fopen("produtos.dat", "rb");
+
+    struct Produto p;
+
+    while (fread(&p, sizeof(struct Produto), 1, arq)) {
+
+        if (p.id == id) {
+
+            printf("\nProduto encontrado");
+            printf("\nDescricao: %s", p.descricao);
+            printf("\nPreco: %.2f", p.preco);
+            printf("\nEstoque: %d\n", p.estoque);
+
+            fclose(arq);
+            return;
+        }
+    }
+
+    printf("Produto nao encontrado.\n");
+
+    fclose(arq);
+}
+
+void atualizarProduto(int id) {
+
+    FILE *arq = fopen("produtos.dat", "rb+");
+
+    struct Produto p;
+
+    while (fread(&p, sizeof(struct Produto), 1, arq)) {
+
+        if (p.id == id) {
+
+            printf("Nova descricao: ");
+            scanf("%s", p.descricao);
+
+            printf("Novo preco: ");
+            scanf("%f", &p.preco);
+
+            printf("Novo estoque: ");
+            scanf("%d", &p.estoque);
+
+            fseek(arq, -sizeof(struct Produto), SEEK_CUR);
+
+            fwrite(&p, sizeof(struct Produto), 1, arq);
+
+            printf("Produto atualizado.\n");
+
+            fclose(arq);
+            return;
+        }
+    }
+
+    printf("Produto nao encontrado.\n");
+
+    fclose(arq);
+}
+
+void removerProduto(int id) {
+
+    FILE *original = fopen("produtos.dat", "rb");
+    FILE *novo = fopen("temp.dat", "wb");
+
+    struct Produto p;
+
+    while (fread(&p, sizeof(struct Produto), 1, original)) {
+
+        if (p.id != id) {
+            fwrite(&p, sizeof(struct Produto), 1, novo);
+        }
+    }
+
+    fclose(original);
+    fclose(novo);
+
+    remove("produtos.dat");
+    rename("temp.dat", "produtos.dat");
+
+    printf("Produto removido.\n");
+}
+
+void cadastrarVenda() {
+
+    FILE *arq = fopen("vendas.dat", "ab");
+
+    struct Venda v;
+
+    printf("ID da venda: ");
+    scanf("%d", &v.idVenda);
+
+    printf("Quantidade de produtos: ");
+    scanf("%d", &v.qtdProdutos);
+
+    for (int i = 0; i < v.qtdProdutos; i++) {
+
+        printf("ID do produto %d: ", i + 1);
+        scanf("%d", &v.idsProdutos[i]);
+    }
+
+    printf("Valor total: ");
+    scanf("%f", &v.valorTotal);
+
+    fwrite(&v, sizeof(struct Venda), 1, arq);
+
+    fclose(arq);
+}
+
+void listarVendas() {
+
+    FILE *arq = fopen("vendas.dat", "rb");
+
+    struct Venda v;
+
+    while (fread(&v, sizeof(struct Venda), 1, arq)) {
+
+        printf("\nVenda %d", v.idVenda);
+
+        printf("\nProdutos: ");
+
+        for (int i = 0; i < v.qtdProdutos; i++) {
+            printf("%d ", v.idsProdutos[i]);
+        }
+
+        printf("\nValor Total: %.2f\n", v.valorTotal);
+    }
+
+    fclose(arq);
+}
+
+void buscarVenda(int idVenda) {
+
+    FILE *arq = fopen("vendas.dat", "rb");
+
+    struct Venda v;
+
+    while (fread(&v, sizeof(struct Venda), 1, arq)) {
+
+        if (v.idVenda == idVenda) {
+
+            printf("\nVenda encontrada");
+            printf("\nValor Total: %.2f", v.valorTotal);
+
+            printf("\nProdutos: ");
+
+            for (int i = 0; i < v.qtdProdutos; i++) {
+                printf("%d ", v.idsProdutos[i]);
+            }
+
+            printf("\n");
+
+            fclose(arq);
+            return;
+        }
+    }
+
+    printf("Venda nao encontrada.\n");
+
+    fclose(arq);
+}
